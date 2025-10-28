@@ -12,17 +12,8 @@
   body{margin:0;background:linear-gradient(180deg,#f6fbff,#eef6ff);color:#04223a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
   .wrap{width:100%;max-width:1100px}
   header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-  .logo img {
-  height: 60px;      /* ubah sesuai kebutuhan */
-  width: auto;
-  vertical-align: middle;
-}
-
-header {
-  display: flex;
-  align-items: center;
-  gap: 15px;          /* jarak antara logo dan teks */
-}
+  .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:white}
+  h1{margin:0;font-size:20px}
   .sub{color:var(--muted);font-size:13px}
   .tabs{display:flex;gap:8px;margin-bottom:14px}
   .tab-btn{flex:1;text-align:center;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;border:1px solid var(--accent2);color:var(--accent2);background:transparent;transition:.2s}
@@ -45,9 +36,14 @@ header {
 <body>
 <div class="wrap">
   <header>
-<div class="logo">
-  <img src="IMG_6432.jpeg" alt="MTL Logo">
-</div>
+<div class="wrap">
+  <header>
+    <div class="logo">MTL</div>
+    <div>
+      <h1>Proyek Matriks (MTL) 3×3 (mod 27)</h1>
+      <div class="sub">Spasi=0, A=1..Z=26 • Ubah matriks K sesuai kebutuhan</div>
+    </div>
+  </header>
       <h1>Proyek Matriks (MTL) 3×3 (mod 27)</h1>
       <div class="sub">Spasi=0, A=1..Z=26 • Ubah matriks K sesuai kebutuhan</div>
     </div>
@@ -383,6 +379,7 @@ document.getElementById('tabDe').onclick = ()=>{ document.getElementById('enkrip
 </script>
 </body>
 </html>
+
 
 
 
