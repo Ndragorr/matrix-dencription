@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Hill Cipher 3×3 (mod 27) — Enkripsi & Dekripsi</title>
+<style>
+  :root{
+    --bg:#f4fbff; --card:#ffffff; --muted:#6b7280; --accent:#0b7cff; --accent2:#0563c1;
+    --radius:12px; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  body{margin:0;background:linear-gradient(180deg,#f6fbff,#eef6ff);color:#04223a;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+  .wrap{width:100%;max-width:1100px}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:white}
+  h1{margin:0;font-size:20px}
+  .sub{color:var(--muted);font-size:13px}
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tab-btn{flex:1;text-align:center;padding:10px;border-radius:10px;font-weight:700;cursor:pointer;border:1px solid var(--accent2);color:var(--accent2);background:transparent;transition:.2s}
+  .tab-btn.active{background:var(--accent2);color:#fff}
+  .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.08)}
+  label{display:block;font-weight:700;margin-bottom:6px}
+  textarea,input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef8;background:transparent;color:inherit}
+  .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+  .btn.secondary{background:transparent;border:1px solid var(--accent);color:var(--accent2)}
+  .output{background:#f0f6ff;padding:12px;border-radius:10px;font-family:ui-monospace,monospace;color:#04223a}
+  .steps{margin-top:10px;background:#fbfeff;padding:12px;border-radius:8px;color:var(--muted);font-size:13px;line-height:1.5}
+  .matrix-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .matrix-cell{background:#eef6ff;padding:8px;border-radius:6px;text-align:center;font-weight:700}
+  .matrix-input{padding:8px;text-align:center;border-radius:6px;border:1px solid #e6eef8}
+  .small{font-size:13px;color:var(--muted)}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:16px}
+  @media(max-width:980px){ .tabs{flex-direction:column} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">HC</div>
+    <div>
+      <h1>Hill Cipher 3×3 (mod 27)</h1>
+      <div class="sub">Spasi=0, A=1..Z=26 • Ubah matriks K sesuai kebutuhan</div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tabEn">🔒 Enkripsi</button>
+    <button class="tab-btn" id="tabDe">🔓 Dekripsi</button>
+  </div>
+
+  <!-- ENKRIPSI -->
+  <div class="card" id="enkripsiCard">
+    <label>Pesan Asli</label>
+    <textarea id="plainInput" rows="3" placeholder="Contoh: ILMU ITU MAHAL"></textarea>
+
+    <label style="margin-top:12px">Matriks K (3×3)</label>
+    <div class="matrix-grid" id="Kinputs"></div>
+
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn" id="btnEncrypt">Enkripsi</button>
+      <button class="btn secondary" id="btnReset">Reset Default</button>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Hasil Cipher (huruf)</label>
+      <div id="cipherOut" class="output">(Belum dienkripsi)</div>
+    </div>
+
+    <div class="steps" id="encryptSteps"></div>
+  </div>
+
+  <!-- DEKRIPSI -->
+  <div class="card" id="dekripsiCard" style="display:none">
+    <label>Masukkan Cipher (huruf)</label>
+    <textarea id="cipherInput" rows="3" placeholder="Contoh: TULORNGICXS"></textarea>
+
+    <label style="margin-top:12px">Matriks K (3×3) — (bisa diubah disini juga)</label>
+    <div class="matrix-grid" id="KinputsDecrypt"></div>
+
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn" id="btnComputeInv">Hitung K⁻¹ Otomatis</button>
+      <button class="btn secondary" id="btnFillKFromEn">Gunakan K dari Enkripsi</button>
+    </div>
+
+    <label style="margin-top:12px">Matriks K⁻¹ (3×3) — bisa diisi manual atau otomatis terisi</label>
+    <div class="matrix-grid" id="KinvInputs"></div>
+
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn" id="btnDoDecrypt">Dekripsi</button>
+      <button class="btn secondary" id="btnCopyPlain">Salin Pesan</button>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Hasil Dekripsi</label>
+      <div id="plainOut" class="output">(Belum didekripsi)</div>
+    </div>
+
+    <div class="steps" id="decryptSteps"></div>
+  </div>
+
+  <footer>Gunakan mod 27 (spasi=0) • Jika determinan(K) tidak invertible, K⁻¹ tidak tersedia</footer>
+  <footer>Made by: @ndragonnate a.k.a Andra, naga</footer>
+</div>
+
+<script>
+/* === core (tidak diubah gaya/tata letak) === */
+const MOD=27;
+const K_default=[[1,1,1],[1,1,1],[1,1,1]];
+let Kcurrent=JSON.parse(JSON.stringify(K_default));
+
+function det3(M){return M[0][0]*(M[1][1]*M[2][2]-M[1][2]*M[2][1])-M[0][1]*(M[1][0]*M[2][2]-M[1][2]*M[2][0])+M[0][2]*(M[1][0]*M[2][1]-M[1][1]*M[2][0]);}
+function adjugate3(M){
+  const a=[[],[],[]];
+  a[0][0]=(M[1][1]*M[2][2]-M[1][2]*M[2][1]);
+  a[0][1]=-(M[0][1]*M[2][2]-M[0][2]*M[2][1]);
+  a[0][2]=(M[0][1]*M[1][2]-M[0][2]*M[1][1]);
+  a[1][0]=-(M[1][0]*M[2][2]-M[1][2]*M[2][0]);
+  a[1][1]=(M[0][0]*M[2][2]-M[0][2]*M[2][0]);
+  a[1][2]=-(M[0][0]*M[1][2]-M[0][2]*M[1][0]);
+  a[2][0]=(M[1][0]*M[2][1]-M[1][1]*M[2][0]);
+  a[2][1]=-(M[0][0]*M[2][1]-M[0][1]*M[2][0]);
+  a[2][2]=(M[0][0]*M[1][1]-M[0][1]*M[1][0]);
+  return a;
+}
+function egcd(a,b){ if(b===0) return {g:a,x:1,y:0}; const r=egcd(b,a%b); return {g:r.g,x:r.y,y:r.x-Math.floor(a/b)*r.y}; }
+function modInv(a,m){ const r=egcd(((a%m)+m)%m,m); if(r.g!==1) return null; return ((r.x%m)+m)%m; }
+function invertMatrixMod27(M){ const d=((det3(M)%MOD)+MOD)%MOD; const invDet=modInv(d,MOD); if(invDet===null) return null; const adj=adjugate3(M); const inv=[]; for(let i=0;i<3;i++){ inv[i]=[]; for(let j=0;j<3;j++){ inv[i][j]=((adj[i][j]*invDet)%MOD+MOD)%MOD; } } return inv; }
+
+function charToNum(ch){ if(ch===' ') return 0; const c=ch.toUpperCase(); if(c>='A'&&c<='Z') return c.charCodeAt(0)-64; return null; }
+function numToChar(n){ n=((n%MOD)+MOD)%MOD; if(n===0) return ' '; return String.fromCharCode(64+n); }
+function textToNums(t){ const a=[]; for(const ch of t){ const n=charToNum(ch); if(n!==null) a.push(n); } return a; }
+function numsToText(a){ return a.map(numToChar).join(''); }
+function group3(a){ const b=[]; for(let i=0;i<a.length;i+=3){ b.push([a[i]||0,a[i+1]||0,a[i+2]||0]); } return b; }
+
+/* ---------- RENDER K inputs (enkripsi) ---------- */
+const divK = document.getElementById('Kinputs');
+function renderK(){ divK.innerHTML=''; for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ const inp=document.createElement('input'); inp.type='number'; inp.min=0; inp.max=26; inp.value=Kcurrent[i][j]; inp.className='matrix-input'; inp.onchange=()=>{ Kcurrent[i][j]=((+inp.value)%MOD+MOD)%MOD; }; divK.appendChild(inp); } } }
+renderK();
+
+/* ---------- RENDER K inputs (dekripsi - editable) ---------- */
+const divKdec = document.getElementById('KinputsDecrypt');
+let KdecInputs = []; // will hold refs
+function renderKDecrypt(){
+  divKdec.innerHTML=''; KdecInputs = [];
+  for(let i=0;i<3;i++){
+    for(let j=0;j<3;j++){
+      const inp = document.createElement('input');
+      inp.type='number'; inp.min=0; inp.max=26; inp.value = Kcurrent[i][j];
+      inp.className='matrix-input';
+      inp.dataset.r = i; inp.dataset.c = j;
+      inp.addEventListener('change', ()=> {
+        const r = parseInt(inp.dataset.r), c = parseInt(inp.dataset.c);
+        let v = parseInt(inp.value); if(isNaN(v)) v = 0;
+        v = ((v%MOD)+MOD)%MOD; inp.value = v;
+        // do not overwrite Kcurrent here unless user wants to; but we keep Kcurrent synced
+        Kcurrent[r][c] = v;
+        // also re-render enkripsi inputs to keep consistent
+        renderK();
+      });
+      divKdec.appendChild(inp);
+      KdecInputs.push(inp);
+    }
+  }
+}
+renderKDecrypt();
+
+/* ---------- RENDER Kinv inputs (dekripsi) ---------- */
+const divKinv = document.getElementById('KinvInputs');
+let KinvInputs = [];
+function renderKinvEmpty(){
+  divKinv.innerHTML=''; KinvInputs = [];
+  for(let i=0;i<3;i++){
+    for(let j=0;j<3;j++){
+      const inp=document.createElement('input'); inp.type='number'; inp.min=0; inp.max=26; inp.value=''; inp.className='matrix-input';
+      inp.dataset.r=i; inp.dataset.c=j;
+      inp.addEventListener('change', ()=> {
+        // user sets manual Kinv: no auto actions
+      });
+      divKinv.appendChild(inp);
+      KinvInputs.push(inp);
+    }
+  }
+}
+renderKinvEmpty();
+
+/* helper: read K from decrypt inputs */
+function getKFromDecryptInputs(){
+  const M = [[],[],[]];
+  const inputs = KdecInputs;
+  for(const inp of inputs){
+    const r = parseInt(inp.dataset.r), c = parseInt(inp.dataset.c);
+    M[r][c] = ((+inp.value)%MOD+MOD)%MOD;
+  }
+  return M;
+}
+
+/* helper: fill Kinv inputs from matrix */
+function fillKinvInputs(mat){
+  // if mat null -> clear
+  if(!mat){ KinvInputs.forEach(inp=>inp.value=''); return; }
+  for(const inp of KinvInputs){
+    const r=parseInt(inp.dataset.r), c=parseInt(inp.dataset.c);
+    inp.value = ((mat[r][c]%MOD)+MOD)%MOD;
+  }
+}
+
+/* ---------- compute adjugate + show steps for inverse ---------- */
+function computeInverseStepsAndFill(){
+  const Kdec = getKFromDecryptInputs();
+  const detVal = det3(Kdec);
+  const detMod = ((detVal%MOD)+MOD)%MOD;
+  const invDet = modInv(detMod, MOD);
+  const adj = adjugate3(Kdec);
+  // compute adj mod MOD for display
+  const adjMod = adj.map(row => row.map(v => ((v%MOD)+MOD)%MOD));
+  // prepare steps text
+  let html = `<strong>Menentukan K⁻¹ — Langkah</strong><br>`;
+  html += `1) Hitung determinan K (integer): det(K) = ${detVal} <br>`;
+  html += `   -> det(K) mod ${MOD} = ${detMod}<br>`;
+  if(invDet===null){
+    html += `<b>Perhatian:</b> det(K) mod ${MOD} = ${detMod} tidak memiliki invers modulo ${MOD} (gcd(det,${MOD}) ≠ 1). Jadi K tidak invertible modulo ${MOD}.<br>`;
+    // clear Kinv inputs
+    fillKinvInputs(null);
+    document.getElementById('decryptSteps').innerHTML = html;
+    return null;
+  }
+  html += `2) Hitung adjoin (adjugate) K (cofactor transposed):<br>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;margin-bottom:8px">`;
+  for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ html+=`<div style="background:#fbfeff;padding:6px;border-radius:6px;text-align:center;font-family:monospace">${adj[i][j]}</div>`; } }
+  html += `</div>`;
+  html += `   -> adjoin mod ${MOD}:<br>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;margin-bottom:8px">`;
+  for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ html+=`<div style="background:#fbfeff;padding:6px;border-radius:6px;text-align:center;font-family:monospace">${adjMod[i][j]}</div>`; } }
+  html += `</div>`;
+  html += `3) Cari invers determinan mod ${MOD}: det⁻¹ = ${invDet} (karena ${detMod} × ${invDet} ≡ 1 mod ${MOD})<br>`;
+  // compute final inverse
+  const invMat = [];
+  for(let i=0;i<3;i++){
+    invMat[i]=[];
+    for(let j=0;j<3;j++){
+      invMat[i][j] = ((adjMod[i][j] * invDet) % MOD + MOD) % MOD;
+    }
+  }
+  html += `4) Kalikan adjoin mod ${MOD} dengan det⁻¹ (mod ${MOD}) → K⁻¹ (mod ${MOD}):<br>`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;margin-bottom:8px">`;
+  for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ html+=`<div style="background:#fbfeff;padding:6px;border-radius:6px;text-align:center;font-family:monospace">${invMat[i][j]}</div>`; } }
+  html += `</div>`;
+  // fill inputs
+  fillKinvInputs(invMat);
+  document.getElementById('decryptSteps').innerHTML = html;
+  return invMat;
+}
+
+/* ---------- ENCRYPT flow (ke-petah sama sebelumnya) ---------- */
+function encryptFlow(){
+  const raw=document.getElementById('plainInput').value.toUpperCase().replace(/[^A-Z ]/g,'');
+  let nums=textToNums(raw); while(nums.length%3!==0) nums.push(0);
+  const blocks=group3(nums), out=[], details=[];
+  for(const v of blocks){
+    const res=[0,0,0], rawSum=[];
+    for(let i=0;i<3;i++){
+      let s=0;
+      for(let j=0;j<3;j++) s += Kcurrent[i][j]*v[j];
+      rawSum.push(s);
+      res[i] = ((s%MOD)+MOD)%MOD;
+    }
+    out.push(...res);
+    details.push({v, raw: rawSum, mod: res});
+  }
+  const text = numsToText(out);
+  document.getElementById('cipherOut').innerText = text || '(hasil kosong)';
+  let steps = `<b>Langkah Enkripsi:</b><br>1) Konversi huruf → angka (A=1..Z=26, spasi=0)<br>2) Bagi 3 kolom, kali K×A (integer), lalu mod ${MOD}<br>3) Ubah hasil → huruf<br><br>`;
+  details.forEach((d,i)=>{ steps += `<b>Blok ${i+1}:</b> A=[${d.v.join(", ")}]<br>K×A=[${d.raw.join(", ")}] → mod${MOD}=[${d.mod.join(", ")}] → ${d.mod.map(numToChar).join(" ")}<br><br>`; });
+  document.getElementById('encryptSteps').innerHTML = steps;
+  // also update decrypt K inputs to match current K
+  renderKDecrypt(); // keeps decryption K inputs in sync
+  // autofill cipherInput for convenience
+  document.getElementById('cipherInput').value = text;
+}
+
+/* ---------- DECRYPT flow: use Kinv from inputs if provided, else try compute ---------- */
+function readKinvFromInputs(){
+  // try to read Kinv from KinvInputs; if any cell empty => return null
+  const mat = [[],[],[]];
+  for(const inp of KinvInputs){
+    const r = parseInt(inp.dataset.r), c = parseInt(inp.dataset.c);
+    if(inp.value === '' || inp.value === null) return null;
+    mat[r][c] = ((+inp.value)%MOD+MOD)%MOD;
+  }
+  return mat;
+}
+
+function decryptFlow(){
+  const txt = document.getElementById('cipherInput').value.toUpperCase().replace(/[^A-Z ]/g,'');
+  let nums = textToNums(txt); while(nums.length%3!==0) nums.push(0);
+  // get K from decrypt inputs
+  const Kdec = getKFromDecryptInputs();
+  // read Kinv from inputs (manual) if present
+  let Kinv = readKinvFromInputs();
+  let inverseStepsNote = '';
+  if(!Kinv){
+    // try compute from Kdec
+    const invComputed = invertMatrixMod27(Kdec);
+    if(!invComputed){
+      document.getElementById('plainOut').innerText = '(Error) Matriks K tidak invertible mod 27. Tidak dapat mendekripsi.';
+      document.getElementById('decryptSteps').innerHTML = '<b>Perhatian:</b> det(K) mod 27 tidak invertible. Coba ubah K atau masukkan K⁻¹ secara manual.';
+      return;
+    }
+    Kinv = invComputed;
+    // also fill Kinv inputs and show compute steps
+    computeInverseStepsAndFill(); // fills inputs and shows steps
+    inverseStepsNote = '<div class="small" style="margin-top:8px">K⁻¹ dihitung otomatis dari K (lihat langkah-langkah di atas).</div>';
+  } else {
+    // show short note that manual Kinv digunakan and also show computation steps for reference
+    document.getElementById('decryptSteps').innerHTML = '<b>Menggunakan K⁻¹ yang dimasukkan secara manual oleh pengguna.</b>';
+  }
+
+  // now decrypt using Kinv
+  const blocks = group3(nums);
+  const out = []; const details = [];
+  for(const v of blocks){
+    const res=[0,0,0], rawSum=[];
+    for(let i=0;i<3;i++){
+      let s=0;
+      for(let j=0;j<3;j++) s += Kinv[i][j]*v[j];
+      rawSum.push(s);
+      res[i] = ((s%MOD)+MOD)%MOD;
+    }
+    out.push(...res);
+    details.push({v, raw: rawSum, mod: res});
+  }
+  const plainText = numsToText(out);
+  document.getElementById('plainOut').innerText = plainText || '(hasil kosong)';
+
+  // append detailed decryption steps with per-block computations and show Kinv used
+  let html = document.getElementById('decryptSteps').innerHTML || '';
+  html += `<br><b>Langkah Dekripsi (per blok):</b><br>`;
+  html += `<b>Matriks K (digunakan):</b><br><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;margin-bottom:8px">`;
+  for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ html += `<div style="background:#fbfeff;padding:6px;border-radius:6px;text-align:center;font-family:monospace">${Kdec[i][j]}</div>`; } }
+  html += `</div>`;
+  html += `<b>Matriks K⁻¹ (digunakan):</b><br><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;margin-bottom:8px">`;
+  for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ html += `<div style="background:#fbfeff;padding:6px;border-radius:6px;text-align:center;font-family:monospace">${Kinv[i][j]}</div>`; } }
+  html += `</div>`;
+  details.forEach((d,i)=>{ html += `<b>Blok ${i+1}:</b> B=[${d.v.join(", ")}]<br>K⁻¹×B=[${d.raw.join(", ")}] → mod${MOD}=[${d.mod.join(", ")}] → ${d.mod.map(numToChar).join(" ")}<br><br>`; });
+  html += inverseStepsNote;
+  document.getElementById('decryptSteps').innerHTML = html;
+}
+
+/* ---------- event bindings ---------- */
+document.getElementById('btnEncrypt').onclick = ()=>{ encryptFlow(); renderKDecrypt(); };
+document.getElementById('btnReset').onclick = ()=>{ Kcurrent = JSON.parse(JSON.stringify(K_default)); renderK(); renderKDecrypt(); fillKinvInputs(null); document.getElementById('cipherOut').innerText='(Belum dienkripsi)'; document.getElementById('plainOut').innerText='(Belum didekripsi)'; document.getElementById('encryptSteps').innerHTML=''; document.getElementById('decryptSteps').innerHTML=''; };
+document.getElementById('btnComputeInv').onclick = ()=>{ computeInverseStepsAndFill(); };
+document.getElementById('btnFillKFromEn').onclick = ()=>{ // copy current K into decrypt inputs
+  // Kcurrent is already in sync; just re-render decrypt K inputs (they were initialized from Kcurrent)
+  renderKDecrypt();
+  document.getElementById('decryptSteps').innerHTML = '<div class="small">Matriks K disalin dari Enkripsi. Tekan "Hitung K⁻¹ Otomatis" untuk melihat langkah perhitungan invers.</div>';
+};
+document.getElementById('btnDoDecrypt').onclick = decryptFlow;
+document.getElementById('btnCopyPlain').onclick = ()=> navigator.clipboard.writeText(document.getElementById('plainOut').innerText);
+
+/* tabs */
+document.getElementById('tabEn').onclick = ()=>{ document.getElementById('enkripsiCard').style.display='block'; document.getElementById('dekripsiCard').style.display='none'; tabEn.classList.add('active'); tabDe.classList.remove('active'); };
+document.getElementById('tabDe').onclick = ()=>{ document.getElementById('enkripsiCard').style.display='none'; document.getElementById('dekripsiCard').style.display='block'; tabDe.classList.add('active'); tabEn.classList.remove('active'); };
+
+/* initialize Kdecrypt and Kinv inputs attributes for reading */
+(function init(){
+  renderKDecrypt();
+  renderKinvEmpty();
+  // after creating KinvInputs, set dataset coords
+  const tmp = divKinv.querySelectorAll('input');
+  for(let i=0;i<tmp.length;i++){ tmp[i].dataset.r = Math.floor(i/3); tmp[i].dataset.c = i%3; KinvInputs[i]=tmp[i]; }
+})();
+</script>
+</body>
+</html>
