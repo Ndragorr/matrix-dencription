@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Hill Cipher 3×3 (mod 27) — Enkripsi & Dekripsi</title>
+<title>Proyek Matriks (MTL) 3×3 (mod 27) — Enkripsi & Dekripsi</title>
 <style>
   :root{
     --bg:#f4fbff; --card:#ffffff; --muted:#6b7280; --accent:#0b7cff; --accent2:#0563c1;
@@ -38,7 +38,7 @@
   <header>
     <div class="logo">HC</div>
     <div>
-      <h1>Hill Cipher 3×3 (mod 27)</h1>
+      <h1>>Proyek Matriks (MTL) 3×3 (mod 27)</h1>
       <div class="sub">Spasi=0, A=1..Z=26 • Ubah matriks K sesuai kebutuhan</div>
     </div>
   </header>
@@ -62,7 +62,7 @@
     </div>
 
     <div style="margin-top:12px">
-      <label>Hasil Cipher (huruf)</label>
+      <label>Hasil Pesan Rahasia (huruf)</label>
       <div id="cipherOut" class="output">(Belum dienkripsi)</div>
     </div>
 
@@ -71,7 +71,7 @@
 
   <!-- DEKRIPSI -->
   <div class="card" id="dekripsiCard" style="display:none">
-    <label>Masukkan Cipher (huruf)</label>
+    <label>Masukkan Pesan Rahasia (huruf)</label>
     <textarea id="cipherInput" rows="3" placeholder="Contoh: TULORNGICXS"></textarea>
 
     <label style="margin-top:12px">Matriks K (3×3) — (bisa diubah disini juga)</label>
@@ -98,7 +98,8 @@
     <div class="steps" id="decryptSteps"></div>
   </div>
 
-  <footer>Gunakan mod 27 (spasi=0) • Jika determinan(K) tidak invertible, K⁻¹ tidak tersedia // Made by: @ndragonnate a.k.a Andra, naga</footer>
+  <footer>Gunakan mod 27 (spasi=0) • Jika determinan(K) tidak invertible, K⁻¹ tidak tersedia</footer>
+  <footer>Made by: @ndragonnate a.k.a Andra, naga</footer>
 </div>
 
 <script>
@@ -372,4 +373,5 @@ document.getElementById('tabDe').onclick = ()=>{ document.getElementById('enkrip
 </script>
 </body>
 </html>
+
 
