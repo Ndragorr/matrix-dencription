@@ -109,7 +109,6 @@
 </div>
 
 <script>
-/* === core (tidak diubah gaya/tata letak) === */
 const MOD=27;
 const K_default=[[1,1,1],[1,1,1],[1,1,1]];
 let Kcurrent=JSON.parse(JSON.stringify(K_default));
@@ -138,14 +137,12 @@ function textToNums(t){ const a=[]; for(const ch of t){ const n=charToNum(ch); i
 function numsToText(a){ return a.map(numToChar).join(''); }
 function group3(a){ const b=[]; for(let i=0;i<a.length;i+=3){ b.push([a[i]||0,a[i+1]||0,a[i+2]||0]); } return b; }
 
-/* ---------- RENDER K inputs (enkripsi) ---------- */
 const divK = document.getElementById('Kinputs');
 function renderK(){ divK.innerHTML=''; for(let i=0;i<3;i++){ for(let j=0;j<3;j++){ const inp=document.createElement('input'); inp.type='number'; inp.min=0; inp.max=26; inp.value=Kcurrent[i][j]; inp.className='matrix-input'; inp.onchange=()=>{ Kcurrent[i][j]=((+inp.value)%MOD+MOD)%MOD; }; divK.appendChild(inp); } } }
 renderK();
 
-/* ---------- RENDER K inputs (dekripsi - editable) ---------- */
 const divKdec = document.getElementById('KinputsDecrypt');
-let KdecInputs = []; // will hold refs
+let KdecInputs = [];
 function renderKDecrypt(){
   divKdec.innerHTML=''; KdecInputs = [];
   for(let i=0;i<3;i++){
